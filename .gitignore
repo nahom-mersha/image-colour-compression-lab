@@ -3,3 +3,16 @@ __pycache__/
 *.pyc
 *.egg-info/
 .pytest_cache/
+
+# Generated images and experiment outputs
+data/generated/*
+reports/benchmarks/*
+reports/experiments/*
+
+# Keep directory structure in Git
+!data/generated/.gitkeep
+!reports/benchmarks/.gitkeep
+!reports/experiments/.gitkeep
+
+# Local Streamlit files
+.streamlit/

@@ -7,8 +7,15 @@ name = "image-colour-compression-lab"
 version = "0.1.0"
 description = "An interactive laboratory for image colour compression, similarity search, and clustering."
 requires-python = ">=3.10"
-dependencies = []
-
+dependencies = [
+    "numpy",
+    "pillow",
+    "matplotlib",
+    "plotly",
+    "scikit-learn",
+    "pandas",
+    "streamlit",
+]
 [project.optional-dependencies]
 dev = [
     "pytest",

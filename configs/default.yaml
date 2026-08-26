@@ -1,8 +1,17 @@
 application:
   name: image-colour-compression-lab
+  random_seed: 42
 
-data:
-  input_path: data/sample.csv
+image:
+  max_width: 1024
+  max_height: 1024
+  pixel_sample_size: 10000
+
+compression:
+  default_k: 8
+  max_iterations: 100
+  tolerance: 0.001
+  initialization: kmeans++
 
 logging:
   level: INFO

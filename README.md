@@ -1,54 +1,105 @@
 # Image Colour Compression Laboratory
 
-An interactive laboratory for exploring image colour compression, similarity search, and clustering.
+An interactive laboratory for exploring image colour compression, pixel similarity, clustering, and dimensionality reduction.
 
-The project compares algorithms implemented from scratch with professional library implementations. It focuses on understanding how distance measures, initialization strategies, feature representations, and the number of clusters affect both image quality and computational performance.
+The project implements important algorithms from scratch with NumPy and compares them with professional implementations from scikit-learn. It focuses on how distance measures, initialization strategies, feature representations, and the number of clusters affect image quality and computational performance.
 
 ## Project Status
 
-Project 4 of my AI Engineering roadmap. Implementation is currently in progress.
+Project 4 of my AI Engineering roadmap. Project setup is complete; algorithm implementation and experiments are in progress.
+
+## Main Laboratory Areas
+
+- Image colour compression using K-means
+- Pixel similarity using K-nearest neighbours
+- Dimensionality reduction and visualization using PCA
+- Experiments and comparisons with scikit-learn
 
 ## Planned Features
 
-* Image loading, validation, and preprocessing
-* Colour compression with K-means clustering
-* From-scratch K-means implementation
-* Comparison with scikit-learn K-means
-* Random and K-means++ initialization
-* RGB colour-space experiments
-* Optional spatial features using pixel coordinates
-* Image similarity and nearest-colour experiments
-* PCA implemented from scratch
-* Cluster-quality and compression metrics
-* Interactive Streamlit interface
-* Visual comparison of original and compressed images
-* Reproducible configuration, tests, logging, CI, and Docker support
+- Image loading, validation, and preprocessing
+- From-scratch K-means and K-means++ initialization
+- Euclidean and Manhattan distance
+- From-scratch K-nearest-neighbour search
+- PCA implemented from scratch
+- RGB and optional spatial-feature experiments
+- Compression and cluster-quality metrics
+- Original-versus-compressed image comparison
+- Interactive Streamlit interface
+- Reproducible configuration, tests, logging, CI, and Docker support
 
-## Quick Start
+## Project Structure
 
-Install the development dependencies:
-
-```bash
-pip install -e ".[dev]"
+```text
+image-colour-compression-lab/
+├── app/                         # Streamlit application
+├── configs/                     # YAML configuration
+├── data/
+│   ├── samples/                 # Licence-safe sample images
+│   └── generated/               # Generated images and figures
+├── reports/
+│   ├── benchmarks/              # Runtime and implementation comparisons
+│   └── experiments/             # Experiment results and reports
+├── src/
+│   └── image_colour_compression_lab/
+│       └──                    # Reusable project source code
+├── tests/                       # Automated tests
+├── Dockerfile
+├── pyproject.toml
+└── README.md
 ```
 
-Run the tests:
+The data/samples/ directory contains small images used for development and experiments. Sample images must be personally owned or licence-safe.
+
+The included sample image is:
+
+data/samples/sample_image.jpg
+
+Generated outputs are excluded from version control. Sample images and source code are tracked.
+
+## Installation
 
 ```bash
-pytest
+python -m pip install -e ".[dev]"
 ```
 
-Build the Docker image:
+## Run Tests
+
+On Windows, run:
+
+```bash
+python -m pytest
+```
+
+Run formatting and linting checks:
+
+```bash
+ruff format --check .
+ruff check .
+```
+
+## Configuration
+
+Default settings are stored in `configs/default.yaml`. They include the random seed, image limits, pixel sample size, default palette size, K-means limits, initialization method, and logging level.
+
+## Run the Application
+
+The Streamlit interface will be added during the application stage.
+
+```bash
+streamlit run app/streamlit_app.py
+```
+
+## Docker
 
 ```bash
 docker build -t image-colour-compression-lab .
-```
-
-Run the Docker container:
-
-```bash
 docker run --rm image-colour-compression-lab
 ```
+
+## Learning Goals
+
+This project develops practical understanding of unsupervised learning, image colour quantization, distance metrics, nearest-neighbour search, clustering, dimensionality reduction, reconstruction error, algorithm comparison, and reproducible experimentation.
 
 ## AI-Assisted Learning
 
@@ -58,6 +109,6 @@ This is an AI-assisted learning project. I direct the work, study the underlying
 
 Project-specific learning notes will be published in my AI notes repository after the implementation and experiments are complete.
 
-## Purpose
+## Scope Boundaries
 
-This repository is Project 4 of my AI Engineering roadmap. Its purpose is to develop a practical understanding of similarity, distance measures, clustering, dimensionality reduction, and algorithm evaluation through a visual, experiment-driven application.
+The required version does not include neural networks, learned image embeddings, real-time video, user accounts, a database, or a cloud API. RGB is the main colour representation. More advanced colour spaces and perceptual metrics may be considered after the required project is complete.
