@@ -1,0 +1,8 @@
+application:
+  name: reusable-ai-template
+
+data:
+  input_path: data/sample.csv
+
+logging:
+  level: INFO
