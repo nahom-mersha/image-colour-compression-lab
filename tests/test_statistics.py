@@ -1,6 +1,6 @@
 import pytest
 
-from ai_template.statistics import calculate_mean
+from image_colour_compression_lab.statistics import calculate_mean
 
 
 def test_calculate_mean() -> None:

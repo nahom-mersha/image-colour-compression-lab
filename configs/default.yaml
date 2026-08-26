@@ -1,5 +1,5 @@
 application:
-  name: reusable-ai-template
+  name: image-colour-compression-lab
 
 data:
   input_path: data/sample.csv

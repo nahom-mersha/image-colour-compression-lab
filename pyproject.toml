@@ -3,9 +3,9 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "reusable-ai-template"
+name = "image-colour-compression-lab"
 version = "0.1.0"
-description = "A reusable Python project template for AI engineering projects"
+description = "An interactive laboratory for image colour compression, similarity search, and clustering."
 requires-python = ">=3.10"
 dependencies = []
 

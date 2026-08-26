@@ -1,53 +1,63 @@
-# Reusable AI Template
+# Image Colour Compression Laboratory
 
-A reusable Python project template for future AI engineering and machine-learning projects.
+An interactive laboratory for exploring image colour compression, similarity search, and clustering.
 
-It provides a clean starting point with testing, linting, logging, configuration, GitHub Actions, and Docker already configured.
+The project compares algorithms implemented from scratch with professional library implementations. It focuses on understanding how distance measures, initialization strategies, feature representations, and the number of clusters affect both image quality and computational performance.
 
-## AI-assisted learning
+## Project Status
 
-This was an AI-assisted learning project. I directed the work, reviewed and tested the implementation, and documented the concepts I learned.
+Project 4 of my AI Engineering roadmap. Implementation is currently in progress.
 
-## Features
+## Planned Features
 
-* 📁 `src` layout
-* 🧪 `pytest`
-* ✨ Ruff (formatting & linting)
-* 📝 Logging
-* ⚙️ YAML configuration
-* 🤖 GitHub Actions (CI)
-* 🐳 Docker
+* Image loading, validation, and preprocessing
+* Colour compression with K-means clustering
+* From-scratch K-means implementation
+* Comparison with scikit-learn K-means
+* Random and K-means++ initialization
+* RGB colour-space experiments
+* Optional spatial features using pixel coordinates
+* Image similarity and nearest-colour experiments
+* PCA implemented from scratch
+* Cluster-quality and compression metrics
+* Interactive Streamlit interface
+* Visual comparison of original and compressed images
+* Reproducible configuration, tests, logging, CI, and Docker support
 
 ## Quick Start
 
-Install:
+Install the development dependencies:
 
 ```bash
 pip install -e ".[dev]"
 ```
 
-Run tests:
+Run the tests:
 
 ```bash
 pytest
 ```
 
-Build Docker image:
+Build the Docker image:
 
 ```bash
-docker build -t reusable-ai-template .
+docker build -t image-colour-compression-lab .
 ```
 
-Run Docker:
+Run the Docker container:
 
 ```bash
-docker run --rm reusable-ai-template
+docker run --rm image-colour-compression-lab
 ```
+
+## AI-Assisted Learning
+
+This is an AI-assisted learning project. I direct the work, study the underlying concepts, review the implementation, run the experiments, and document what I learn.
 
 ## Learning Notes
 
-Short summary notes covering the main concepts I learned while working on this project are available at: https://github.com/nahom-mersha/ai-notes/tree/main/Project%200%20-%20Reusable%20AI%20Project%20Template.
+Project-specific learning notes will be published in my AI notes repository after the implementation and experiments are complete.
 
 ## Purpose
 
-This repository is **Project 0** of my AI Engineering roadmap and serves as the reusable foundation for future AI projects.
+This repository is Project 4 of my AI Engineering roadmap. Its purpose is to develop a practical understanding of similarity, distance measures, clustering, dimensionality reduction, and algorithm evaluation through a visual, experiment-driven application.
