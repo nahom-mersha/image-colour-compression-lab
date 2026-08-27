@@ -3,6 +3,8 @@ import numpy as np
 from image_colour_compression_lab.distance import (
     euclidean_distance,
     manhattan_distance,
+    pairwise_euclidean_distances,
+    pairwise_manhattan_distances,
 )
 
 
@@ -66,3 +68,61 @@ def test_manhattan_distance_is_symmetric():
         second_vector,
         first_vector,
     )
+
+
+def test_pairwise_euclidean_distances():
+    queries = np.array(
+        [
+            [0, 0],
+            [3, 4],
+        ]
+    )
+    references = np.array(
+        [
+            [0, 0],
+            [0, 4],
+        ]
+    )
+
+    result = pairwise_euclidean_distances(
+        queries,
+        references,
+    )
+
+    expected = np.array(
+        [
+            [0.0, 4.0],
+            [5.0, 3.0],
+        ]
+    )
+
+    assert np.allclose(result, expected)
+
+
+def test_pairwise_manhattan_distances():
+    queries = np.array(
+        [
+            [0, 0],
+            [3, 4],
+        ]
+    )
+    references = np.array(
+        [
+            [0, 0],
+            [0, 4],
+        ]
+    )
+
+    result = pairwise_manhattan_distances(
+        queries,
+        references,
+    )
+
+    expected = np.array(
+        [
+            [0.0, 4.0],
+            [7.0, 3.0],
+        ]
+    )
+
+    assert np.array_equal(result, expected)
