@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from image_colour_compression_lab.metrics import (
+    assignment_error,
     count_unique_colours,
     mean_squared_error,
 )
@@ -75,3 +76,39 @@ def test_mean_squared_error_rejects_different_shapes():
         match="same shape",
     ):
         mean_squared_error(original_pixels, reconstructed_pixels)
+
+
+def test_assignment_error():
+    original_pixels = np.array(
+        [
+            [100, 120, 200],
+            [20, 240, 30],
+        ],
+        dtype=np.uint8,
+    )
+    assigned_pixels = np.array(
+        [
+            [110, 100, 190],
+            [30, 230, 40],
+        ],
+        dtype=np.uint8,
+    )
+
+    result = assignment_error(
+        original_pixels,
+        assigned_pixels,
+    )
+
+    assert result == 900.0
+
+
+def test_assignment_error_is_zero_for_identical_pixels():
+    pixels = np.array(
+        [
+            [100, 120, 200],
+            [20, 240, 30],
+        ],
+        dtype=np.uint8,
+    )
+
+    assert assignment_error(pixels, pixels) == 0.0

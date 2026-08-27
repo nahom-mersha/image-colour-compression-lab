@@ -25,3 +25,23 @@ def mean_squared_error(
     )
 
     return float(np.mean(differences**2))
+
+
+def assignment_error(
+    original_pixels: np.ndarray,
+    assigned_pixels: np.ndarray,
+) -> float:
+    """Calculate total squared Euclidean assignment error."""
+    if original_pixels.shape != assigned_pixels.shape:
+        raise ValueError("Pixel arrays must have the same shape.")
+
+    if original_pixels.ndim != 2 or original_pixels.shape[1] != 3:
+        raise ValueError("Expected pixels with shape (number_of_pixels, 3).")
+
+    differences = original_pixels.astype(np.float64) - assigned_pixels.astype(
+        np.float64
+    )
+
+    squared_distances = np.sum(differences**2, axis=1)
+
+    return float(np.sum(squared_distances))
