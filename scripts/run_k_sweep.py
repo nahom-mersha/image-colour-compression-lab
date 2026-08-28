@@ -2,6 +2,8 @@ import csv
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.metrics import silhouette_score
 
 from image_colour_compression_lab.benchmark import measure_runtime
 from image_colour_compression_lab.image_io import (
@@ -27,6 +29,7 @@ def main() -> None:
     k_values = [4, 8, 16, 32]
     random_seed = 42
     max_iterations = 20
+    silhouette_sample_size = 5_000
 
     output_directory.mkdir(
         parents=True,
@@ -35,6 +38,20 @@ def main() -> None:
 
     original_image = load_image(input_path)
     pixels = image_to_pixels(original_image)
+
+    sample_generator = np.random.default_rng(random_seed)
+    sample_size = min(
+        silhouette_sample_size,
+        pixels.shape[0],
+    )
+
+    sample_indices = sample_generator.choice(
+        pixels.shape[0],
+        size=sample_size,
+        replace=False,
+    )
+
+    sampled_pixels = pixels[sample_indices]
 
     results = []
 
@@ -72,12 +89,20 @@ def main() -> None:
             compressed_pixels,
         )
 
+        sampled_assignments = assignments[sample_indices]
+
+        silhouette = silhouette_score(
+            sampled_pixels,
+            sampled_assignments,
+        )
+
         results.append(
             {
                 "k": k,
                 "final_inertia": inertia_history[-1],
                 "mse": mse,
                 "unique_colours": unique_colours,
+                "silhouette_score": silhouette,
                 "iterations": len(inertia_history),
                 "runtime_seconds": runtime_seconds,
             }
@@ -116,6 +141,7 @@ def main() -> None:
                 "final_inertia",
                 "mse",
                 "unique_colours",
+                "silhouette_score",
                 "iterations",
                 "runtime_seconds",
             ],
@@ -130,6 +156,7 @@ def main() -> None:
             f"inertia={result['final_inertia']:.2f} "
             f"mse={result['mse']:.2f} "
             f"colours={result['unique_colours']} "
+            f"silhouette={result['silhouette_score']:.4f} "
             f"iterations={result['iterations']} "
             f"runtime={result['runtime_seconds']:.3f}s"
         )
