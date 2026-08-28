@@ -1,5 +1,9 @@
 import numpy as np
 
+from image_colour_compression_lab.distance import (
+    pairwise_euclidean_distances,
+)
+
 
 def initialize_centroids(
     pixels: np.ndarray,
@@ -28,3 +32,36 @@ def initialize_centroids(
     )
 
     return pixels[selected_indices].astype(np.float64, copy=True)
+
+
+def assign_clusters(
+    pixels: np.ndarray,
+    centroids: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Assign every pixel to its nearest centroid."""
+    if pixels.ndim != 2:
+        raise ValueError("Pixels must be a two-dimensional array.")
+
+    if centroids.ndim != 2:
+        raise ValueError("Centroids must be a two-dimensional array.")
+
+    if pixels.shape[1] != centroids.shape[1]:
+        raise ValueError("Pixels and centroids must have the same number of features.")
+
+    distances = pairwise_euclidean_distances(
+        pixels,
+        centroids,
+    )
+
+    nearest_centroid_indices = np.argmin(
+        distances,
+        axis=1,
+    )
+
+    nearest_distances = np.take_along_axis(
+        distances,
+        nearest_centroid_indices[:, np.newaxis],
+        axis=1,
+    ).ravel()
+
+    return nearest_centroid_indices, nearest_distances
