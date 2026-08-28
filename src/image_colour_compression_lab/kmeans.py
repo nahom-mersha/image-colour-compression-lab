@@ -103,3 +103,48 @@ def update_centroids(
             )
 
     return updated_centroids
+
+
+def fit_kmeans(
+    pixels: np.ndarray,
+    k: int,
+    max_iterations: int = 100,
+    tolerance: float = 1e-4,
+    random_seed: int = 42,
+) -> tuple[np.ndarray, np.ndarray, list[float]]:
+    """Fit K-means and return centroids, assignments, and inertia history."""
+    centroids = initialize_centroids(
+        pixels,
+        k=k,
+        random_seed=random_seed,
+    )
+
+    inertia_history = []
+
+    for _ in range(max_iterations):
+        assignments, _ = assign_clusters(
+            pixels,
+            centroids,
+        )
+
+        updated_centroids = update_centroids(
+            pixels,
+            assignments,
+            centroids,
+        )
+
+        centroid_movement = np.linalg.norm(updated_centroids - centroids)
+
+        centroids = updated_centroids
+
+        assignments, distances = assign_clusters(
+            pixels,
+            centroids,
+        )
+
+        inertia_history.append(float(np.sum(distances**2)))
+
+        if centroid_movement <= tolerance:
+            break
+
+    return centroids, assignments, inertia_history

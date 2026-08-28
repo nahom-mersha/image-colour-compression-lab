@@ -3,6 +3,7 @@ import pytest
 
 from image_colour_compression_lab.kmeans import (
     assign_clusters,
+    fit_kmeans,
     initialize_centroids,
     update_centroids,
 )
@@ -124,3 +125,27 @@ def test_update_centroids_calculates_cluster_means():
     )
 
     assert np.allclose(updated_centroids, expected)
+
+
+def test_fit_kmeans_separates_two_groups():
+    pixels = np.array(
+        [
+            [1, 1],
+            [2, 1],
+            [1, 2],
+            [9, 9],
+            [10, 9],
+            [9, 10],
+        ]
+    )
+
+    centroids, assignments, inertia_history = fit_kmeans(
+        pixels,
+        k=2,
+        random_seed=42,
+    )
+
+    assert centroids.shape == (2, 2)
+    assert assignments.shape == (6,)
+    assert len(inertia_history) >= 1
+    assert inertia_history[-1] <= inertia_history[0]
