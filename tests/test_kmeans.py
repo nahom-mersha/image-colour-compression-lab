@@ -5,6 +5,7 @@ from image_colour_compression_lab.kmeans import (
     assign_clusters,
     fit_kmeans,
     initialize_centroids,
+    reconstruct_pixels,
     update_centroids,
 )
 
@@ -149,3 +150,30 @@ def test_fit_kmeans_separates_two_groups():
     assert assignments.shape == (6,)
     assert len(inertia_history) >= 1
     assert inertia_history[-1] <= inertia_history[0]
+
+
+def test_reconstruct_pixels_uses_assigned_centroids():
+    centroids = np.array(
+        [
+            [1.5, 1.0],
+            [8.5, 9.5],
+        ]
+    )
+
+    assignments = np.array([0, 1, 0, 1])
+
+    reconstructed = reconstruct_pixels(
+        centroids,
+        assignments,
+    )
+
+    expected = np.array(
+        [
+            [1.5, 1.0],
+            [8.5, 9.5],
+            [1.5, 1.0],
+            [8.5, 9.5],
+        ]
+    )
+
+    assert np.array_equal(reconstructed, expected)

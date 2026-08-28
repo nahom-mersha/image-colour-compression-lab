@@ -148,3 +148,24 @@ def fit_kmeans(
             break
 
     return centroids, assignments, inertia_history
+
+
+def reconstruct_pixels(
+    centroids: np.ndarray,
+    assignments: np.ndarray,
+) -> np.ndarray:
+    """Replace each pixel with its assigned centroid."""
+    if centroids.ndim != 2:
+        raise ValueError("Centroids must be a two-dimensional array.")
+
+    if assignments.ndim != 1:
+        raise ValueError("Assignments must be one-dimensional.")
+
+    if assignments.size > 0:
+        if np.any(assignments < 0):
+            raise ValueError("Assignments cannot contain negative indices.")
+
+        if np.any(assignments >= centroids.shape[0]):
+            raise ValueError("Assignments cannot reference missing centroids.")
+
+    return centroids[assignments].copy()
