@@ -65,3 +65,41 @@ def assign_clusters(
     ).ravel()
 
     return nearest_centroid_indices, nearest_distances
+
+
+def update_centroids(
+    pixels: np.ndarray,
+    assignments: np.ndarray,
+    centroids: np.ndarray,
+) -> np.ndarray:
+    """Calculate the mean feature values for each cluster."""
+    if pixels.ndim != 2:
+        raise ValueError("Pixels must be a two-dimensional array.")
+
+    if assignments.ndim != 1:
+        raise ValueError("Assignments must be one-dimensional.")
+
+    if centroids.ndim != 2:
+        raise ValueError("Centroids must be a two-dimensional array.")
+
+    if pixels.shape[0] != assignments.shape[0]:
+        raise ValueError("Each pixel must have one assignment.")
+
+    if pixels.shape[1] != centroids.shape[1]:
+        raise ValueError("Pixels and centroids must have the same number of features.")
+
+    updated_centroids = centroids.astype(
+        np.float64,
+        copy=True,
+    )
+
+    for centroid_index in range(centroids.shape[0]):
+        cluster_pixels = pixels[assignments == centroid_index]
+
+        if cluster_pixels.shape[0] > 0:
+            updated_centroids[centroid_index] = np.mean(
+                cluster_pixels,
+                axis=0,
+            )
+
+    return updated_centroids

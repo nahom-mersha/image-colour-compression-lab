@@ -4,6 +4,7 @@ import pytest
 from image_colour_compression_lab.kmeans import (
     assign_clusters,
     initialize_centroids,
+    update_centroids,
 )
 
 
@@ -88,3 +89,38 @@ def test_assign_clusters_returns_nearest_centroid():
             ]
         ),
     )
+
+
+def test_update_centroids_calculates_cluster_means():
+    pixels = np.array(
+        [
+            [1, 1],
+            [9, 9],
+            [2, 1],
+            [8, 10],
+        ]
+    )
+
+    assignments = np.array([0, 1, 0, 1])
+
+    centroids = np.array(
+        [
+            [0, 0],
+            [10, 10],
+        ]
+    )
+
+    updated_centroids = update_centroids(
+        pixels,
+        assignments,
+        centroids,
+    )
+
+    expected = np.array(
+        [
+            [1.5, 1.0],
+            [8.5, 9.5],
+        ]
+    )
+
+    assert np.allclose(updated_centroids, expected)
