@@ -111,13 +111,23 @@ def fit_kmeans(
     max_iterations: int = 100,
     tolerance: float = 1e-4,
     random_seed: int = 42,
+    initialization: str = "random",
 ) -> tuple[np.ndarray, np.ndarray, list[float]]:
     """Fit K-means and return centroids, assignments, and inertia history."""
-    centroids = initialize_centroids(
-        pixels,
-        k=k,
-        random_seed=random_seed,
-    )
+    if initialization == "random":
+        centroids = initialize_centroids(
+            pixels,
+            k=k,
+            random_seed=random_seed,
+        )
+    elif initialization == "kmeans++":
+        centroids = initialize_centroids_kmeans_plus_plus(
+            pixels,
+            k=k,
+            random_seed=random_seed,
+        )
+    else:
+        raise ValueError("initialization must be 'random' or 'kmeans++'.")
 
     inertia_history = []
 

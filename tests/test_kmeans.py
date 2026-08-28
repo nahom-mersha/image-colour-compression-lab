@@ -242,3 +242,25 @@ def test_kmeans_plus_plus_handles_duplicate_pixels():
 
     assert centroids.shape == (2, 2)
     assert np.all(centroids == 5)
+
+
+def test_fit_kmeans_supports_kmeans_plus_plus():
+    pixels = np.array(
+        [
+            [1, 1],
+            [2, 1],
+            [9, 9],
+            [10, 9],
+        ]
+    )
+
+    centroids, assignments, inertia_history = fit_kmeans(
+        pixels,
+        k=2,
+        initialization="kmeans++",
+        random_seed=42,
+    )
+
+    assert centroids.shape == (2, 2)
+    assert assignments.shape == (4,)
+    assert len(inertia_history) >= 1
