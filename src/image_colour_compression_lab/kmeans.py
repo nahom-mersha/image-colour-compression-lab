@@ -169,3 +169,77 @@ def reconstruct_pixels(
             raise ValueError("Assignments cannot reference missing centroids.")
 
     return centroids[assignments].copy()
+
+
+def initialize_centroids_kmeans_plus_plus(
+    pixels: np.ndarray,
+    k: int,
+    random_seed: int = 42,
+) -> np.ndarray:
+    """Select initial centroids using K-means++."""
+    if pixels.ndim != 2:
+        raise ValueError("Expected a two-dimensional pixel array.")
+
+    if pixels.shape[0] == 0:
+        raise ValueError("Cannot initialize centroids from empty pixels.")
+
+    if k < 1:
+        raise ValueError("k must be at least 1.")
+
+    if k > pixels.shape[0]:
+        raise ValueError("k cannot be larger than the number of pixels.")
+
+    random_generator = np.random.default_rng(random_seed)
+
+    number_of_pixels = pixels.shape[0]
+    centroids = np.empty(
+        (k, pixels.shape[1]),
+        dtype=np.float64,
+    )
+
+    selected_indices = []
+
+    first_index = int(random_generator.integers(number_of_pixels))
+    selected_indices.append(first_index)
+    centroids[0] = pixels[first_index]
+
+    squared_distances = np.sum(
+        (pixels.astype(np.float64) - centroids[0]) ** 2,
+        axis=1,
+    )
+
+    for centroid_index in range(1, k):
+        probabilities = squared_distances.copy()
+        probabilities[selected_indices] = 0.0
+
+        total_distance = probabilities.sum()
+
+        if total_distance == 0.0:
+            remaining_indices = np.setdiff1d(
+                np.arange(number_of_pixels),
+                selected_indices,
+            )
+            next_index = int(random_generator.choice(remaining_indices))
+        else:
+            probabilities /= total_distance
+            next_index = int(
+                random_generator.choice(
+                    number_of_pixels,
+                    p=probabilities,
+                )
+            )
+
+        selected_indices.append(next_index)
+        centroids[centroid_index] = pixels[next_index]
+
+        new_squared_distances = np.sum(
+            (pixels.astype(np.float64) - centroids[centroid_index]) ** 2,
+            axis=1,
+        )
+
+        squared_distances = np.minimum(
+            squared_distances,
+            new_squared_distances,
+        )
+
+    return centroids

@@ -5,6 +5,7 @@ from image_colour_compression_lab.kmeans import (
     assign_clusters,
     fit_kmeans,
     initialize_centroids,
+    initialize_centroids_kmeans_plus_plus,
     reconstruct_pixels,
     update_centroids,
 )
@@ -177,3 +178,67 @@ def test_reconstruct_pixels_uses_assigned_centroids():
     )
 
     assert np.array_equal(reconstructed, expected)
+
+
+def test_kmeans_plus_plus_returns_k_centroids():
+    pixels = np.array(
+        [
+            [1, 1],
+            [2, 2],
+            [9, 9],
+            [10, 10],
+        ]
+    )
+
+    centroids = initialize_centroids_kmeans_plus_plus(
+        pixels,
+        k=2,
+        random_seed=42,
+    )
+
+    assert centroids.shape == (2, 2)
+    assert centroids.dtype == np.float64
+
+
+def test_kmeans_plus_plus_is_reproducible():
+    pixels = np.array(
+        [
+            [1, 1],
+            [2, 2],
+            [9, 9],
+            [10, 10],
+        ]
+    )
+
+    first_result = initialize_centroids_kmeans_plus_plus(
+        pixels,
+        k=2,
+        random_seed=42,
+    )
+
+    second_result = initialize_centroids_kmeans_plus_plus(
+        pixels,
+        k=2,
+        random_seed=42,
+    )
+
+    assert np.array_equal(first_result, second_result)
+
+
+def test_kmeans_plus_plus_handles_duplicate_pixels():
+    pixels = np.array(
+        [
+            [5, 5],
+            [5, 5],
+            [5, 5],
+        ]
+    )
+
+    centroids = initialize_centroids_kmeans_plus_plus(
+        pixels,
+        k=2,
+        random_seed=42,
+    )
+
+    assert centroids.shape == (2, 2)
+    assert np.all(centroids == 5)
