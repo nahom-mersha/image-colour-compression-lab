@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from sklearn.decomposition import PCA
 
 from image_colour_compression_lab.pca import (
     fit_pca,
@@ -75,3 +76,63 @@ def test_transform_pca_returns_projected_data():
     )
 
     assert transformed_data.shape == (3, 2)
+
+
+def test_fit_pca_components_are_orthonormal():
+    data = np.array(
+        [
+            [10.0, 2.0, 1.0],
+            [8.0, 3.0, 2.0],
+            [6.0, 4.0, 1.0],
+            [4.0, 5.0, 3.0],
+            [2.0, 6.0, 5.0],
+            [1.0, 8.0, 7.0],
+        ]
+    )
+
+    _, components, _, _ = fit_pca(data)
+
+    product = components @ components.T
+
+    assert np.allclose(
+        product,
+        np.eye(components.shape[0]),
+    )
+
+
+def test_fit_pca_matches_sklearn():
+    data = np.array(
+        [
+            [10.0, 2.0, 1.0],
+            [8.0, 3.0, 2.0],
+            [6.0, 4.0, 1.0],
+            [4.0, 5.0, 3.0],
+            [2.0, 6.0, 5.0],
+            [1.0, 8.0, 7.0],
+        ]
+    )
+
+    (
+        _,
+        components,
+        explained_variance,
+        explained_variance_ratio,
+    ) = fit_pca(data)
+
+    sklearn_pca = PCA()
+    sklearn_pca.fit(data)
+
+    assert np.allclose(
+        explained_variance,
+        sklearn_pca.explained_variance_,
+    )
+
+    assert np.allclose(
+        explained_variance_ratio,
+        sklearn_pca.explained_variance_ratio_,
+    )
+
+    assert np.allclose(
+        np.abs(components),
+        np.abs(sklearn_pca.components_),
+    )
