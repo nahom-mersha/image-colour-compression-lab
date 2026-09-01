@@ -1,0 +1,5 @@
+algorithm,implementation,runtime_seconds,inertia
+KNN,from_scratch,0.006376400007866323,
+KNN,scikit_learn,0.02714030002243817,
+K-means,from_scratch,0.03519550000783056,709506.8008409279
+K-means,scikit_learn,0.03127559996210039,709867.4773261114
