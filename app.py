@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from time import perf_counter
 
@@ -27,6 +28,13 @@ from image_colour_compression_lab.pca import (
 MAX_IMAGE_DIMENSION = 600
 FIT_SAMPLE_SIZE = 5000
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
 
 def load_uploaded_image(uploaded_file) -> np.ndarray:
     image = Image.open(uploaded_file).convert("RGB")
@@ -36,7 +44,11 @@ def load_uploaded_image(uploaded_file) -> np.ndarray:
         max_width=MAX_IMAGE_DIMENSION,
         max_height=MAX_IMAGE_DIMENSION,
     )
-
+    logger.info(
+        "Loaded uploaded image: %dx%d",
+        resized_image.size[0],
+        resized_image.size[1],
+    )
     return np.asarray(resized_image)
 
 
@@ -139,7 +151,13 @@ def main() -> None:
             )
 
             sampled_pixels = pixels[sampled_indices]
-
+            logger.info(
+                "Starting K-means: sample=%d, k=%d, initialization=%s, seed=%d",
+                sample_size,
+                k,
+                initialization,
+                int(random_seed),
+            )
             start_time = perf_counter()
 
             (
@@ -165,7 +183,11 @@ def main() -> None:
             )
 
             runtime_seconds = perf_counter() - start_time
-
+            logger.info(
+                "K-means finished: iterations=%d, runtime=%.2fs",
+                len(inertia_history),
+                runtime_seconds,
+            )
             compressed_pixels = np.clip(
                 np.rint(compressed_pixels),
                 0,
@@ -353,6 +375,12 @@ def main() -> None:
                     3,
                 )
 
+                logger.info(
+                    "Running KNN: references=%d, neighbours=%d, metric=%s",
+                    len(reference_pixels),
+                    neighbour_count,
+                    metric,
+                )
                 (
                     neighbour_indices,
                     neighbour_distances,
@@ -470,11 +498,14 @@ def main() -> None:
             )
 
             cluster_count = st.select_slider(
-                "Number of K-means clusters",
+                "Number of clusters shown in the PCA visualization",
                 options=[4, 8, 16],
                 value=8,
             )
-
+            st.caption(
+                "Changing k affects the K-means cluster labels shown in the "
+                "scatter plot. It does not change PCA explained variance."
+            )
             if st.button(
                 "Run PCA analysis",
                 type="primary",
@@ -495,7 +526,11 @@ def main() -> None:
                 )
 
                 sampled_pixels = pixels[sampled_indices]
-
+                logger.info(
+                    "Running PCA analysis: sample=%d, clusters=%d",
+                    sample_size,
+                    cluster_count,
+                )
                 (
                     _,
                     assignments,
@@ -511,7 +546,7 @@ def main() -> None:
                 (
                     mean,
                     components,
-                    explained_variance,
+                    _,
                     explained_variance_ratio,
                 ) = fit_pca(sampled_pixels)
 
