@@ -3,6 +3,7 @@ from time import perf_counter
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import streamlit as st
 from PIL import Image
 
@@ -593,7 +594,165 @@ def main() -> None:
                 )
 
     with experiments_tab:
-        st.info("Experiment comparisons coming next.")
+        st.header("Experiment Comparisons")
+
+        st.write(
+            "Explore experiment results generated locally and pushed "
+            "to the project's repository, covering K-means behaviour, "
+            "runtime, and dimensionality."
+        )
+
+        experiment = st.selectbox(
+            "Choose experiment",
+            [
+                "Number of clusters (k)",
+                "Initialization",
+                "Feature scaling — concept",
+                "Runtime comparison",
+                "Curse of dimensionality",
+            ],
+            key="experiment_choice",
+        )
+
+        if experiment == "Number of clusters (k)":
+            st.subheader("Effect of k")
+
+            k_results = pd.read_csv("reports/experiments/k_sweep/k_sweep.csv")
+
+            st.dataframe(
+                k_results,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+            st.line_chart(
+                k_results,
+                x="k",
+                y="mse",
+            )
+
+            st.write(
+                "As k increases, more colours are available "
+                "to represent the image, so reconstruction "
+                "error decreases. Runtime generally increases."
+            )
+
+        elif experiment == "Initialization":
+            st.subheader("Random vs K-means++ Initialization")
+
+            initialization_results = pd.read_csv(
+                "reports/experiments/kmeans_initialization_comparison.csv"
+            )
+
+            st.dataframe(
+                initialization_results,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+            st.image(
+                "reports/experiments/kmeans_initialization_comparison.png",
+                caption="K-means initialization comparison",
+            )
+
+            st.write(
+                "K-means++ generally provides more reliable "
+                "starting centroids than random initialization, "
+                "reducing sensitivity to poor initial choices."
+            )
+
+        elif experiment == "Feature scaling — concept":
+            st.subheader("Feature Scaling")
+
+            st.info(
+                "No standalone scaling experiment was saved for this project. "
+                "This section summarizes the scaling behaviour investigated "
+                "during development."
+            )
+
+            scaling_results = pd.DataFrame(
+                {
+                    "Features": [
+                        "RGB only",
+                        "RGB + normalized position",
+                        "RGB + balanced position",
+                    ],
+                    "RGB scale": [
+                        "0–255",
+                        "0–255",
+                        "0–255",
+                    ],
+                    "Position scale": [
+                        "Not used",
+                        "0–1",
+                        "0–255",
+                    ],
+                    "Effect": [
+                        "Similarity depends only on colour",
+                        "RGB strongly dominates distance",
+                        "Colour and position can both matter",
+                    ],
+                }
+            )
+
+            st.dataframe(
+                scaling_results,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+            st.write(
+                "Feature scaling changes how much each feature influences distance. "
+                "RGB values naturally range from 0 to 255, so RGB-only features are "
+                "already on comparable scales. The issue appears when we add features "
+                "such as pixel position x and y. If x and y are normalized to 0–1 "
+                "while RGB remains 0–255, colour differences dominate and position "
+                "has very little influence. If the features are brought onto similar "
+                "scales, colour and position can both affect what the algorithm "
+                "considers similar. For pure colour compression, this may reduce "
+                "performance because K-means starts grouping pixels partly by location "
+                "instead of only by colour."
+            )
+        elif experiment == "Runtime comparison":
+            st.subheader("From Scratch vs Scikit-learn")
+
+            benchmark_results = pd.read_csv("reports/benchmarks/sklearn_comparison.csv")
+
+            st.dataframe(
+                benchmark_results,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+            st.bar_chart(
+                benchmark_results,
+                x="implementation",
+                y="runtime_seconds",
+                color="algorithm",
+            )
+
+            st.write(
+                "Runtime differences depend on the dataset "
+                "size and implementation overhead. A small "
+                "benchmark should not be interpreted as a "
+                "general claim that one implementation is "
+                "always faster."
+            )
+
+        elif experiment == "Curse of dimensionality":
+            st.subheader("Curse of Dimensionality")
+
+            st.image(
+                "reports/experiments/curse_of_dimensionality.png",
+                caption=("Distance concentration as dimensionality increases"),
+            )
+
+            st.write(
+                "As irrelevant dimensions are added, nearest "
+                "and farthest distances become less distinct. "
+                "KNN neighbour relationships also become less "
+                "stable, while runtime and memory usage increase."
+            )
 
 
 if __name__ == "__main__":
