@@ -1,6 +1,7 @@
 from pathlib import Path
 from time import perf_counter
 
+import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
 from PIL import Image
@@ -17,6 +18,10 @@ from image_colour_compression_lab.kmeans import (
     reconstruct_pixels,
 )
 from image_colour_compression_lab.knn import knn_search
+from image_colour_compression_lab.pca import (
+    fit_pca,
+    transform_pca,
+)
 
 MAX_IMAGE_DIMENSION = 600
 FIT_SAMPLE_SIZE = 5000
@@ -421,7 +426,171 @@ def main() -> None:
                             )
 
     with pca_tab:
-        st.info("PCA visualization coming next.")
+        st.header("PCA and K-means Clusters")
+
+        st.write(
+            "Project RGB pixels into two principal components "
+            "and visualize the K-means clusters."
+        )
+
+        pca_source = st.radio(
+            "Image source",
+            ["Sample image", "Upload image"],
+            horizontal=True,
+            key="pca_image_source",
+        )
+
+        pca_image = None
+
+        if pca_source == "Sample image":
+            pca_image = load_image(
+                Path("data/samples/sample_image.jpg"),
+                max_width=MAX_IMAGE_DIMENSION,
+                max_height=MAX_IMAGE_DIMENSION,
+            )
+
+        else:
+            pca_upload = st.file_uploader(
+                "Upload a PNG or JPEG image",
+                type=["png", "jpg", "jpeg"],
+                key="pca_image_upload",
+            )
+
+            if pca_upload is None:
+                st.info("Upload an image to visualize PCA.")
+            else:
+                pca_image = load_uploaded_image(pca_upload)
+
+        if pca_image is not None:
+            st.image(
+                pca_image,
+                caption="PCA analysis image",
+                width=400,
+            )
+
+            cluster_count = st.select_slider(
+                "Number of K-means clusters",
+                options=[4, 8, 16],
+                value=8,
+            )
+
+            if st.button(
+                "Run PCA analysis",
+                type="primary",
+            ):
+                pixels = image_to_pixels(pca_image).astype(np.float64)
+
+                random_generator = np.random.default_rng(42)
+
+                sample_size = min(
+                    5000,
+                    len(pixels),
+                )
+
+                sampled_indices = random_generator.choice(
+                    len(pixels),
+                    size=sample_size,
+                    replace=False,
+                )
+
+                sampled_pixels = pixels[sampled_indices]
+
+                (
+                    _,
+                    assignments,
+                    _,
+                ) = fit_kmeans(
+                    sampled_pixels,
+                    k=cluster_count,
+                    max_iterations=20,
+                    random_seed=42,
+                    initialization="kmeans++",
+                )
+
+                (
+                    mean,
+                    components,
+                    explained_variance,
+                    explained_variance_ratio,
+                ) = fit_pca(sampled_pixels)
+
+                transformed_pixels = transform_pca(
+                    sampled_pixels,
+                    mean,
+                    components,
+                )
+
+                st.subheader("Explained Variance")
+
+                variance_columns = st.columns(3)
+
+                for index in range(3):
+                    variance_columns[index].metric(
+                        f"PC{index + 1}",
+                        (f"{explained_variance_ratio[index] * 100:.2f}%"),
+                    )
+
+                figure_variance, axis_variance = plt.subplots(figsize=(7, 4))
+
+                component_numbers = np.arange(
+                    1,
+                    len(explained_variance_ratio) + 1,
+                )
+
+                axis_variance.bar(
+                    component_numbers,
+                    explained_variance_ratio,
+                )
+
+                axis_variance.set_xlabel("Principal component")
+
+                axis_variance.set_ylabel("Explained variance ratio")
+
+                axis_variance.set_title("PCA Explained Variance")
+
+                axis_variance.set_xticks(component_numbers)
+
+                figure_variance.tight_layout()
+
+                st.pyplot(figure_variance)
+
+                plt.close(figure_variance)
+
+                st.subheader("Clusters in PCA Space")
+
+                figure_scatter, axis_scatter = plt.subplots(figsize=(8, 5))
+
+                scatter = axis_scatter.scatter(
+                    transformed_pixels[:, 0],
+                    transformed_pixels[:, 1],
+                    c=assignments,
+                    s=8,
+                    alpha=0.6,
+                )
+
+                axis_scatter.set_xlabel("PC1")
+
+                axis_scatter.set_ylabel("PC2")
+
+                axis_scatter.set_title("K-means Clusters in PCA Space")
+
+                figure_scatter.colorbar(
+                    scatter,
+                    ax=axis_scatter,
+                    label="K-means cluster",
+                )
+
+                figure_scatter.tight_layout()
+
+                st.pyplot(figure_scatter)
+
+                plt.close(figure_scatter)
+
+                st.caption(
+                    "K-means creates the cluster labels. "
+                    "PCA only projects the RGB pixels into "
+                    "two dimensions for visualization."
+                )
 
     with experiments_tab:
         st.info("Experiment comparisons coming next.")
