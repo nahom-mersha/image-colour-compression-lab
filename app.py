@@ -16,6 +16,7 @@ from image_colour_compression_lab.kmeans import (
     fit_kmeans,
     reconstruct_pixels,
 )
+from image_colour_compression_lab.knn import knn_search
 
 MAX_IMAGE_DIMENSION = 600
 FIT_SAMPLE_SIZE = 5000
@@ -31,6 +32,18 @@ def load_uploaded_image(uploaded_file) -> np.ndarray:
     )
 
     return np.asarray(resized_image)
+
+
+def hex_to_rgb(hex_colour: str) -> np.ndarray:
+    """Convert a hex colour such as #FF0000 to RGB values."""
+    return np.array(
+        [
+            int(hex_colour[1:3], 16),
+            int(hex_colour[3:5], 16),
+            int(hex_colour[5:7], 16),
+        ],
+        dtype=np.float64,
+    )
 
 
 def main() -> None:
@@ -246,7 +259,166 @@ def main() -> None:
             )
 
     with similarity_tab:
-        st.info("KNN pixel similarity explorer coming next.")
+        st.header("KNN Pixel Similarity")
+
+        st.write(
+            "Choose a colour and find the most similar "
+            "pixels that actually occur in the selected image."
+        )
+
+        similarity_source = st.radio(
+            "Image source",
+            ["Sample image", "Upload image"],
+            horizontal=True,
+            key="knn_image_source",
+        )
+
+        similarity_image = None
+
+        if similarity_source == "Sample image":
+            similarity_image = load_image(
+                Path("data/samples/sample_image.jpg"),
+                max_width=MAX_IMAGE_DIMENSION,
+                max_height=MAX_IMAGE_DIMENSION,
+            )
+
+        else:
+            similarity_upload = st.file_uploader(
+                "Upload a PNG or JPEG image",
+                type=["png", "jpg", "jpeg"],
+                key="knn_image_upload",
+            )
+
+            if similarity_upload is None:
+                st.info("Upload an image to explore similar pixels.")
+            else:
+                similarity_image = load_uploaded_image(similarity_upload)
+
+        if similarity_image is not None:
+            st.image(
+                similarity_image,
+                caption="Similarity search image",
+                width=400,
+            )
+
+            similarity_pixels = image_to_pixels(similarity_image).astype(np.float64)
+
+            random_generator = np.random.default_rng(42)
+
+            reference_count = min(
+                5000,
+                len(similarity_pixels),
+            )
+
+            reference_indices = random_generator.choice(
+                len(similarity_pixels),
+                size=reference_count,
+                replace=False,
+            )
+
+            reference_pixels = similarity_pixels[reference_indices]
+
+            query_hex = st.color_picker(
+                "Choose query colour",
+                "#FF0000",
+            )
+
+            metric = st.selectbox(
+                "Distance metric",
+                ["euclidean", "manhattan"],
+                key="knn_metric",
+            )
+
+            neighbour_count = st.slider(
+                "Number of neighbours",
+                min_value=1,
+                max_value=20,
+                value=5,
+            )
+
+            if st.button(
+                "Find similar pixels",
+                type="primary",
+            ):
+                query_colour = hex_to_rgb(query_hex)
+
+                query = query_colour.reshape(
+                    1,
+                    3,
+                )
+
+                (
+                    neighbour_indices,
+                    neighbour_distances,
+                ) = knn_search(
+                    query,
+                    reference_pixels,
+                    k=neighbour_count,
+                    metric=metric,
+                )
+
+                neighbours = reference_pixels[neighbour_indices[0]].astype(np.uint8)
+
+                st.subheader("Query Colour")
+
+                query_swatch = np.full(
+                    (80, 160, 3),
+                    query_colour,
+                    dtype=np.uint8,
+                )
+
+                st.image(
+                    query_swatch,
+                    width=160,
+                )
+
+                query_rgb = tuple(int(value) for value in query_colour)
+
+                st.caption(f"RGB {query_rgb}")
+
+                st.subheader(f"{neighbour_count} Nearest Pixels")
+
+                columns_per_row = 5
+
+                for row_start in range(
+                    0,
+                    neighbour_count,
+                    columns_per_row,
+                ):
+                    columns = st.columns(columns_per_row)
+
+                    row_end = min(
+                        row_start + columns_per_row,
+                        neighbour_count,
+                    )
+
+                    for neighbour_index in range(
+                        row_start,
+                        row_end,
+                    ):
+                        column = columns[neighbour_index - row_start]
+
+                        colour = neighbours[neighbour_index]
+
+                        rgb_tuple = tuple(int(value) for value in colour)
+
+                        swatch = np.full(
+                            (100, 100, 3),
+                            colour,
+                            dtype=np.uint8,
+                        )
+
+                        with column:
+                            st.image(
+                                swatch,
+                                use_container_width=True,
+                            )
+
+                            st.caption(
+                                f"RGB {rgb_tuple}\n\n"
+                                f"Distance: "
+                                f"{neighbour_distances[0, neighbour_index]:.2f}"
+                            )
 
     with pca_tab:
         st.info("PCA visualization coming next.")
