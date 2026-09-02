@@ -8,6 +8,13 @@ The project implements core algorithms from scratch with NumPy and compares thei
 
 **Streamlit app:** https://image-colour-compression-lab.streamlit.app/
 
+
+## Learning Notes
+
+Detailed notes from this project are available in my AI Notes repository:
+
+[Project 4 — Similarity and Clustering Laboratory](https://github.com/nahom-mersha/ai-notes/tree/main/Project%204%20-%20Similarity%20and%20Clustering%20Laboratory)
+
 ## Main Laboratory Areas
 
 - **Image colour compression:** reduce an image to a selected number of representative colours using K-means.
